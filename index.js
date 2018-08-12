@@ -52,16 +52,18 @@ function TunnelingAgent(options) {
   self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets
   self.requests = []
   self.sockets = []
-
+  
   self.on('free', function onFree(socket, host, port) {
-    for (var i = 0, len = self.requests.length; i < len; ++i) {
-      var pending = self.requests[i]
-      if (pending.host === host && pending.port === port) {
-        // Detect the request to connect same origin server,
-        // reuse the connection.
-        self.requests.splice(i, 1)
-        pending.request.onSocket(socket)
-        return
+    if (host) {
+      for (var i = 0, len = self.requests.length; i < len; ++i) {
+        var pending = self.requests[i]
+        if (pending.host === host && pending.port === port) {
+          // Detect the request to connect same origin server,
+          // reuse the connection.
+          self.requests.splice(i, 1)
+          pending.request.onSocket(socket)
+          return
+        }
       }
     }
     socket.destroy()
@@ -123,6 +125,10 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
     { method: 'CONNECT'
     , path: options.host + ':' + options.port
     , agent: false
+    , servername: self.proxyOptions.host
+    , headers: {
+      host: options.host + ':' + options.port
+    }
     }
   )
   if (connectOptions.proxyAuth) {
@@ -163,6 +169,7 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       cb(socket)
     } else {
       debug('tunneling socket could not be established, statusCode=%d', res.statusCode)
+      self.emit('free', socket)
       var error = new Error('tunneling socket could not be established, ' + 'statusCode=' + res.statusCode)
       error.code = 'ECONNRESET'
       options.request.emit('error', error)

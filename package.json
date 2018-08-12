@@ -1,11 +1,11 @@
 {
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.futurealoof.com)",
-  "name": "tunnel-agent",
+  "name": "@li-na/tunnel-agent",
   "license": "Apache-2.0",
   "description": "HTTP proxy tunneling agent. Formerly part of mikeal/request, now a standalone module.",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "repository": {
-    "url": "https://github.com/mikeal/tunnel-agent"
+    "url": "https://github.com/LI-NA/tunnel-agent"
   },
   "main": "index.js",
   "files": [
